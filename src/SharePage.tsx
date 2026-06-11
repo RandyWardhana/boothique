@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 import { useDismissBoot } from '@/hooks/useDismissBoot';
 
 const API_BASE = import.meta.env.VITE_SHARE_API_BASE?.replace(/\/$/, '') ?? '';
@@ -169,6 +170,7 @@ export function SharePage({ id }: { id: string }) {
       </p>
 
       <SpeedInsights />
+      <Analytics />
     </div>
   );
 }
