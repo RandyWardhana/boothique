@@ -1,5 +1,6 @@
 import { Fragment, useState, type CSSProperties } from 'react';
 import { Transition } from '@headlessui/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { BRANDING } from '@/config/branding';
 import { getSkin } from '@/lib/frames/skins';
 import { useTranslation } from '@/i18n';
@@ -191,6 +192,8 @@ export default function App() {
           </div>
         </div>
       </Transition>
+
+      <SpeedInsights />
     </div>
   );
 }
