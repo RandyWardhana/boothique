@@ -1,60 +1,63 @@
 import { useState } from 'react';
+import type { LayoutId } from '@/types';
+import { LAYOUTS, LAYOUT_ORDER } from '@/lib/frames/layouts';
+import { useDismissBoot } from '@/hooks/useDismissBoot';
+import { useTheme } from '@/hooks/useTheme';
+import { useThemeVars } from '@/hooks/useThemeVars';
+import { Card, Button } from '@/components/ui';
+import { cn } from '@/utils/cn';
 
-const LAYOUTS = [
-  { id: 'strip', label: 'Strip — 4 shots, vertical' },
-  { id: 'grid', label: 'Grid — 6 shots' },
-  { id: 'polaroid', label: 'Polaroid — 4 shots' },
-  { id: 'wide', label: 'Wide — 3 shots, landscape' },
-  { id: 'collage', label: 'Collage — 6 shots, scattered' },
-];
+const LAYOUT_META: Record<LayoutId, { name: string; shots: string }> = {
+  strip:    { name: 'Strip',    shots: '4 shots · vertical' },
+  grid:     { name: 'Grid',     shots: '4 shots · 2 × 2' },
+  polaroid: { name: 'Polaroid', shots: '1 shot · square' },
+  wide:     { name: 'Wide',     shots: '4 shots · horizontal' },
+  collage:  { name: 'Collage',  shots: '5 shots · scattered' },
+};
+
+function LayoutDiagram({ layoutId }: { layoutId: LayoutId }) {
+  const layout = LAYOUTS[layoutId];
+  const MAX_H = 88;
+  const MAX_W = 120;
+  const scale = Math.min(MAX_H / layout.h, MAX_W / layout.w);
+  const w = Math.round(layout.w * scale);
+  const h = Math.round(layout.h * scale);
+
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${layout.w} ${layout.h}`} style={{ display: 'block' }}>
+      <rect width={layout.w} height={layout.h} rx="18" fill="var(--frame)" />
+      {layout.slots.map((slot, i) => (
+        <rect
+          key={i}
+          x={slot.x}
+          y={slot.y}
+          width={slot.w}
+          height={slot.h}
+          rx="10"
+          fill="var(--accent)"
+          opacity="0.8"
+          transform={
+            slot.rotate
+              ? `rotate(${slot.rotate} ${slot.x + slot.w / 2} ${slot.y + slot.h / 2})`
+              : undefined
+          }
+        />
+      ))}
+    </svg>
+  );
+}
 
 type Status = { type: 'idle' } | { type: 'loading' } | { type: 'success'; msg: string } | { type: 'error'; msg: string };
 
-const css = {
-  page: {
-    minHeight: '100vh',
-    background: '#fdf6f0',
-    padding: '32px 24px',
-    fontFamily: 'system-ui, sans-serif',
-    color: '#1a1a1a',
-  } satisfies React.CSSProperties,
-  card: {
-    maxWidth: 520,
-    background: '#fff',
-    borderRadius: 12,
-    padding: 28,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 20,
-  } satisfies React.CSSProperties,
-  label: { display: 'block', fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#555' } satisfies React.CSSProperties,
-  input: {
-    width: '100%',
-    padding: '10px 14px',
-    border: '1.5px solid #ddd',
-    borderRadius: 8,
-    fontSize: 15,
-    boxSizing: 'border-box' as const,
-    background: '#fafafa',
-  } satisfies React.CSSProperties,
-  btn: {
-    padding: '12px 24px',
-    background: '#c96a7e',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    fontWeight: 700,
-    fontSize: 15,
-    cursor: 'pointer',
-  } satisfies React.CSSProperties,
-};
-
 export function AdminScreen() {
+  const { vars } = useTheme('light');
+  useThemeVars(vars);
+  useDismissBoot();
+
   const base = import.meta.env.VITE_SHARE_API_BASE as string | undefined;
   const [secret, setSecret] = useState(() => localStorage.getItem('boothique_admin_secret') ?? '');
   const [name, setName] = useState('');
-  const [layoutId, setLayoutId] = useState('strip');
+  const [layoutId, setLayoutId] = useState<LayoutId>('strip');
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ type: 'idle' });
@@ -88,7 +91,7 @@ export function AdminScreen() {
         setStatus({ type: 'error', msg: (data as { error?: string }).error ?? 'Upload failed' });
       } else {
         const d = data as { id?: string };
-        setStatus({ type: 'success', msg: `Uploaded! Skin ID: ${d.id ?? '?'}. Reload the booth to see it.` });
+        setStatus({ type: 'success', msg: `Frame uploaded! ID: ${d.id ?? '?'}. Reload the booth to see it under "Custom".` });
         setName('');
         setFile(null);
         if (preview) URL.revokeObjectURL(preview);
@@ -100,95 +103,139 @@ export function AdminScreen() {
   };
 
   return (
-    <div style={css.page}>
-      <h1 style={{ fontFamily: 'Georgia, serif', marginTop: 0, marginBottom: 24, fontSize: 28 }}>Boothique · Frame Admin</h1>
+    <div className="min-h-[100dvh] bg-base text-ink font-sans flex flex-col items-center px-4 py-10 gap-8">
+      {/* Header */}
+      <div className="flex flex-col items-center gap-1">
+        <span className="font-heading text-4xl text-ink leading-none">Boothique</span>
+        <span className="font-sans text-sm text-sub">Frame Admin</span>
+      </div>
 
       {!base && (
-        <p style={{ color: '#c0392b', fontWeight: 600 }}>
-          ⚠ VITE_SHARE_API_BASE is not configured — set it in Vercel environment variables.
-        </p>
+        <div className="w-full max-w-lg bg-surface border border-line rounded-app px-4 py-3 text-sm text-sub">
+          ⚠ <span className="font-bold text-ink">VITE_SHARE_API_BASE</span> is not set — add it to Vercel environment variables.
+        </div>
       )}
 
-      <form onSubmit={(e) => { void handleSubmit(e); }} style={css.card}>
-        <div>
-          <label style={css.label}>Admin Secret</label>
-          <input
-            style={css.input}
-            type="password"
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-            placeholder="Enter admin secret"
-            required
-            autoComplete="current-password"
-          />
-        </div>
+      <Card className="w-full max-w-lg flex flex-col gap-5">
+        <h2 className="font-heading text-2xl text-ink m-0">Upload a Frame</h2>
 
-        <div>
-          <label style={css.label}>Skin Name</label>
-          <input
-            style={css.input}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Cherry Blossom"
-            maxLength={60}
-            required
-          />
-        </div>
+        <form onSubmit={(e) => { void handleSubmit(e); }} className="flex flex-col gap-5">
 
-        <div>
-          <label style={css.label}>Layout</label>
-          <select
-            style={{ ...css.input, paddingRight: 32 }}
-            value={layoutId}
-            onChange={(e) => setLayoutId(e.target.value)}
-          >
-            {LAYOUTS.map((l) => (
-              <option key={l.id} value={l.id}>{l.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={css.label}>Frame Image (PNG with transparency)</label>
-          <input
-            style={{ ...css.input, padding: '8px 14px' }}
-            type="file"
-            accept="image/png"
-            onChange={handleFileChange}
-            required
-          />
-          <p style={{ fontSize: 12, color: '#888', marginTop: 6, marginBottom: 0 }}>
-            Design a PNG where the frame border is opaque and the photo areas are transparent. Max 5 MB.
-          </p>
-        </div>
-
-        {preview && (
-          <div>
-            <label style={css.label}>Preview</label>
-            <img
-              src={preview}
-              alt="Frame preview"
-              style={{ maxWidth: 220, display: 'block', border: '1px solid #ddd', borderRadius: 8, background: 'repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 16px 16px' }}
+          {/* Admin secret */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-sans text-[13px] font-bold text-sub uppercase tracking-wide">
+              Admin Secret
+            </label>
+            <input
+              type="password"
+              value={secret}
+              onChange={(e) => setSecret(e.target.value)}
+              placeholder="Enter admin password"
+              required
+              autoComplete="current-password"
             />
           </div>
-        )}
 
-        <button
-          type="submit"
-          style={{ ...css.btn, opacity: status.type === 'loading' || !base ? 0.6 : 1, cursor: status.type === 'loading' || !base ? 'not-allowed' : 'pointer' }}
-          disabled={status.type === 'loading' || !base}
-        >
-          {status.type === 'loading' ? 'Uploading…' : 'Upload Frame'}
-        </button>
+          {/* Skin name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-sans text-[13px] font-bold text-sub uppercase tracking-wide">
+              Frame Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Cherry Blossom"
+              maxLength={60}
+              required
+            />
+          </div>
 
-        {status.type === 'success' && (
-          <p style={{ color: '#27ae60', fontWeight: 600, margin: 0 }}>✓ {status.msg}</p>
-        )}
-        {status.type === 'error' && (
-          <p style={{ color: '#c0392b', fontWeight: 600, margin: 0 }}>✗ {status.msg}</p>
-        )}
-      </form>
+          {/* Layout picker */}
+          <div className="flex flex-col gap-2">
+            <label className="font-sans text-[13px] font-bold text-sub uppercase tracking-wide">
+              Layout
+            </label>
+            <p className="font-sans text-[13px] text-sub m-0 leading-relaxed">
+              Choose the layout your frame PNG is designed for. The slot positions below show exactly where photos will appear — your transparent PNG holes must align with them.
+            </p>
+            <div className="flex gap-3 flex-wrap mt-1">
+              {LAYOUT_ORDER.map((id) => {
+                const active = layoutId === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setLayoutId(id)}
+                    className={cn(
+                      'flex flex-col gap-2 items-center cursor-pointer p-2.5 bg-base rounded-[calc(var(--radius)*1.2)] border-2 transition-colors',
+                      active ? 'border-accent' : 'border-line',
+                    )}
+                  >
+                    <div className="flex items-center justify-center" style={{ minWidth: 52, minHeight: 56 }}>
+                      <LayoutDiagram layoutId={id} />
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className={cn('font-sans text-[12.5px] font-bold', active ? 'text-ink' : 'text-sub')}>
+                        {LAYOUT_META[id].name}
+                      </span>
+                      <span className="font-sans text-[11px] text-sub">{LAYOUT_META[id].shots}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Image upload */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-sans text-[13px] font-bold text-sub uppercase tracking-wide">
+              Frame Image (PNG)
+            </label>
+            <input
+              type="file"
+              accept="image/png"
+              onChange={handleFileChange}
+              required
+              style={{ padding: '8px 14px' }}
+            />
+            <p className="font-sans text-[12.5px] text-sub m-0 leading-relaxed">
+              Upload a PNG with transparent holes where photos show through. Max 5 MB.
+            </p>
+          </div>
+
+          {/* Image preview */}
+          {preview && (
+            <div className="flex flex-col gap-1.5">
+              <span className="font-sans text-[13px] font-bold text-sub uppercase tracking-wide">Preview</span>
+              <img
+                src={preview}
+                alt="Frame preview"
+                className="max-w-[200px] rounded-app border border-line"
+                style={{ background: 'repeating-conic-gradient(#e0e0e0 0% 25%, #fff 0% 50%) 0 0 / 14px 14px' }}
+              />
+            </div>
+          )}
+
+          <Button
+            disabled={status.type === 'loading' || !base}
+            full
+          >
+            {status.type === 'loading' ? 'Uploading…' : 'Upload Frame'}
+          </Button>
+
+          {status.type === 'success' && (
+            <p className="font-sans text-[13.5px] font-bold text-ink m-0 bg-frame rounded-app px-4 py-3">
+              ✓ {status.msg}
+            </p>
+          )}
+          {status.type === 'error' && (
+            <p className="font-sans text-[13.5px] font-bold m-0 rounded-app px-4 py-3" style={{ color: '#c0392b', background: '#fde8e8' }}>
+              ✗ {status.msg}
+            </p>
+          )}
+        </form>
+      </Card>
     </div>
   );
 }
