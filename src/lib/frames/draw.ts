@@ -167,6 +167,11 @@ export function drawFrame(ctx: CanvasRenderingContext2D, opts: FrameOptions, get
 
   drawPrims(ctx, decor.over, skin);
 
+  // Custom overlay PNG — transparent frame drawn over photos, under stickers.
+  if (opts.overlayEl) {
+    ctx.drawImage(opts.overlayEl, 0, 0, L.w, L.h);
+  }
+
   // Stickers, always on top.
   opts.stickers.forEach((st) => {
     ctx.save();

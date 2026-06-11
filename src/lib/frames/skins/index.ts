@@ -3,8 +3,17 @@ import { CORE_SKINS } from './core';
 import { GIRLIE_SKINS } from './girlie';
 import { OCCASION_SKINS } from './occasion';
 
-/** Every available skin, in display order across all collections. */
+export { buildSkinFromConfig, type RemoteSkinConfig } from './remote';
+
+/** Every built-in skin, in display order across all collections. */
 export const SKINS: Skin[] = [...CORE_SKINS, ...GIRLIE_SKINS, ...OCCASION_SKINS];
+
+let _remoteSkins: Skin[] = [];
+
+/** Called by useRemoteSkins when the Worker manifest is fetched. */
+export function registerRemoteSkins(skins: Skin[]): void {
+  _remoteSkins = skins;
+}
 
 /** Human-readable collection names, keyed by skin `dir`. */
 export const COLLECTION_NAMES: Record<string, string> = {
@@ -23,11 +32,10 @@ export const COLLECTION_ORDER = ['seoul', 'occasion', 'y2k', 'vintage', 'instant
  * direction's own skins simply sort first.
  */
 export function skinsFor(dir: string): Skin[] {
-  const mine = SKINS.filter((s) => s.dir === dir);
-  const rest = SKINS.filter((s) => s.dir !== dir);
-  return [...mine, ...rest];
+  const all = [...SKINS, ..._remoteSkins];
+  return [...all.filter((s) => s.dir === dir), ...all.filter((s) => s.dir !== dir)];
 }
 
 export function getSkin(id: string): Skin {
-  return SKINS.find((s) => s.id === id) ?? SKINS[0];
+  return [...SKINS, ..._remoteSkins].find((s) => s.id === id) ?? SKINS[0];
 }

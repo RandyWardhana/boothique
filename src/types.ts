@@ -150,6 +150,8 @@ export interface Skin {
   photo?: SkinPhoto;
   /** Per-skin font override (used by the occasion packs). */
   fonts?: { display: string; body: string };
+  /** URL of a transparent PNG drawn over photos — used by custom uploaded frames. */
+  overlay?: string;
   decor: (layout: Layout, info: FrameInfo) => Decor;
 }
 
@@ -190,6 +192,8 @@ export interface FrameOptions {
   dateStamp: boolean;
   stickers: Sticker[];
   info: FrameInfo;
+  /** Pre-loaded overlay image for canvas rendering (filled by renderStill/renderVideo). */
+  overlayEl?: HTMLImageElement;
 }
 
 /** A drawable for a single slot, resolved per export type (still vs. video). */

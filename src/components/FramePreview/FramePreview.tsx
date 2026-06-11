@@ -90,6 +90,14 @@ export function FramePreview({
         <FramePrimitive key={`o${i}`} prim={p} k={k} skin={skin} />
       ))}
 
+      {skin.overlay && (
+        <img
+          src={skin.overlay}
+          aria-hidden
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+        />
+      )}
+
       {stickers.map((st) => (
         <div
           key={st.id}

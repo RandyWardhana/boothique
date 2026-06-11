@@ -11,11 +11,15 @@ const VIDEO_DURATION_MS = 5000;
 /** Render the framed still to an off-screen canvas (caller reads pixels/PNG). */
 export async function renderStill(opts: FrameOptions): Promise<HTMLCanvasElement> {
   const images = await Promise.all(opts.shots.map((s) => loadImage((s as Shot).img)));
+  let overlayEl: HTMLImageElement | undefined;
+  if (opts.skin.overlay) {
+    try { overlayEl = await loadImage(opts.skin.overlay); } catch { /* CORS or network — skip */ }
+  }
   const canvas = document.createElement('canvas');
   canvas.width = opts.layout.w;
   canvas.height = opts.layout.h;
   const ctx = canvas.getContext('2d')!;
-  drawFrame(ctx, opts, (i) => ({ el: images[i], mirror: (opts.shots[i] as Shot).mirror }));
+  drawFrame(ctx, { ...opts, overlayEl }, (i) => ({ el: images[i], mirror: (opts.shots[i] as Shot).mirror }));
   return canvas;
 }
 
@@ -221,11 +225,17 @@ export async function renderVideo(opts: FrameOptions, onProgress?: ProgressCallb
   canvas.height = Math.round((L.h * scale) / 2) * 2;
   const ctx = canvas.getContext('2d')!;
 
+  let overlayEl: HTMLImageElement | undefined;
+  if (opts.skin.overlay) {
+    try { overlayEl = await loadImage(opts.skin.overlay); } catch { /* CORS or network — skip */ }
+  }
+  const optsWithOverlay = overlayEl ? { ...opts, overlayEl } : opts;
+
   const media = await prepSlotMedia(opts.shots);
   try {
-    return await renderVideoMp4(canvas, ctx, scale, opts, media, onProgress);
+    return await renderVideoMp4(canvas, ctx, scale, optsWithOverlay, media, onProgress);
   } catch {
-    return await renderVideoRecorder(canvas, ctx, scale, opts, media, onProgress);
+    return await renderVideoRecorder(canvas, ctx, scale, optsWithOverlay, media, onProgress);
   } finally {
     releaseSlotMedia(media);
   }

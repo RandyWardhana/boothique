@@ -1,5 +1,5 @@
 import { useMemo, type Dispatch, type SetStateAction } from 'react';
-import type { Filter, Lang, LayoutId, Shot, Sticker } from '@/types';
+import type { Filter, Lang, LayoutId, Shot, Skin, Sticker } from '@/types';
 import type { Translate } from '@/i18n';
 import { ACTIVE_DIRECTION } from '@/config/directions';
 import { LAYOUTS } from '@/lib/frames/layouts';
@@ -28,6 +28,7 @@ interface FrameScreenProps {
   setDateStamp: (value: boolean) => void;
   stickers: Sticker[];
   setStickers: Dispatch<SetStateAction<Sticker[]>>;
+  remoteSkins: Skin[];
   onNext: () => void;
   onBack: () => void;
 }
@@ -46,6 +47,7 @@ export function FrameScreen({
   setDateStamp,
   stickers,
   setStickers,
+  remoteSkins,
   onNext,
   onBack,
 }: FrameScreenProps) {
@@ -131,6 +133,40 @@ export function FrameScreen({
                 </div>
               );
             })}
+
+            {remoteSkins.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="font-sans text-xs font-bold text-sub uppercase tracking-wide">Custom</div>
+                <div className="flex gap-3 flex-wrap">
+                  {remoteSkins.map((s) => {
+                    const active = s.id === skin.id;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => setSkinId(s.id)}
+                        className={cn(
+                          'flex flex-col gap-2 items-center cursor-pointer p-2.5 bg-surface rounded-[calc(var(--radius)*1.2)] border-2',
+                          active ? 'border-accent' : 'border-line',
+                        )}
+                      >
+                        <FramePreview
+                          layout={layout}
+                          skin={s}
+                          shots={beautified}
+                          filter={filter}
+                          beautify={filter.beautify}
+                          dateStamp={false}
+                          stickers={[]}
+                          info={info}
+                          width={thumbW}
+                        />
+                        <span className={cn('font-sans text-[12.5px] font-bold', active ? 'text-ink' : 'text-sub')}>{s.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <Card className="flex flex-col gap-3">

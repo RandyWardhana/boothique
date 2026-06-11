@@ -7,6 +7,7 @@ import { getSkin } from '@/lib/frames/skins';
 import { useTranslation } from '@/i18n';
 import { useDismissBoot } from '@/hooks/useDismissBoot';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { useRemoteSkins } from '@/hooks/useRemoteSkins';
 import { useSettings } from '@/hooks/useSettings';
 import { useTheme } from '@/hooks/useTheme';
 import { useThemeVars } from '@/hooks/useThemeVars';
@@ -28,6 +29,7 @@ export default function App() {
   useDocumentChrome(tokens.bg);
 
   const session = useBoothSession();
+  const remoteSkins = useRemoteSkins();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { canInstall, install, dismiss: dismissInstall } = useInstallPrompt();
   useDismissBoot();
@@ -136,6 +138,7 @@ export default function App() {
             setDateStamp={session.setDateStamp}
             stickers={session.stickers}
             setStickers={session.setStickers}
+            remoteSkins={remoteSkins}
             onNext={() => session.setStep('result')}
             onBack={() => session.setStep('edit')}
           />
