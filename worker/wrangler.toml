@@ -1,0 +1,26 @@
+# Cloudflare Worker that hosts shared Boothique results for 72 hours.
+#
+# Setup:
+#   1. npm install            (inside worker/)
+#   2. npx wrangler r2 bucket create boothique-shares
+#   3. Set PUBLIC_BASE_URL below to this Worker's public URL (or a custom domain).
+#   4. npx wrangler deploy
+#
+# Storage GC: read access is cut off at exactly 72h (enforced in code). As a
+# backstop, add an R2 lifecycle rule on the bucket to delete objects after ~4
+# days (Dashboard → R2 → bucket → Settings → Object lifecycle rules).
+
+name = "boothique-share"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+[[r2_buckets]]
+binding = "SHARES"
+bucket_name = "boothique-shares"
+
+[vars]
+# Public origin this Worker is served from, no trailing slash. Used to build
+# share URLs and to reference stored assets from the result page.
+PUBLIC_BASE_URL = "https://boothique-share.randywardhana37.workers.dev"
+# Origin allowed to POST uploads (your app). Use "*" to allow any origin.
+ALLOWED_ORIGIN = "*"

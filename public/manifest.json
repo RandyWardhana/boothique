@@ -1,0 +1,23 @@
+{
+  "name": "Boothique — Photo Booth",
+  "short_name": "Boothique",
+  "description": "Snap a strip, frame it cute, keep it moving.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf3f5",
+  "theme_color": "#fbf3f5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

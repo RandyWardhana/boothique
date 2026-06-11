@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf3f5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Boothique — Photo Booth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Cherry+Bomb+One&family=Fredoka:wght@400..600&family=Gaegu:wght@400;700&family=Hi+Melody&family=Karla:ital,wght@0,400..800;1,400&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400..800&family=Quicksand:wght@400..700&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400..700&family=VT323&family=Yellowtail&display=swap" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Cherry+Bomb+One&family=Fredoka:wght@400..600&family=Gaegu:wght@400;700&family=Hi+Melody&family=Karla:ital,wght@0,400..800;1,400&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400..800&family=Quicksand:wght@400..700&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400..700&family=VT323&family=Yellowtail&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Cherry+Bomb+One&family=Fredoka:wght@400..600&family=Gaegu:wght@400;700&family=Hi+Melody&family=Karla:ital,wght@0,400..800;1,400&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400..800&family=Quicksand:wght@400..700&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400..700&family=VT323&family=Yellowtail&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Pre-React splash screen. Faded out by App after first render. -->
+    <style>
+      @keyframes boot-fill {
+        from { width: 0% }
+        to   { width: 88% }
+      }
+      #boot-bar { animation: boot-fill 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    </style>
+
+    <div
+      id="boot"
+      style="
+        position: fixed; inset: 0; z-index: 9999;
+        background: #fbf3f5;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 18px;
+        padding-bottom: env(safe-area-inset-bottom);
+        transition: opacity 0.4s ease;
+      "
+    >
+      <img src="/icon.png" alt="" style="width: 72px; height: 72px; border-radius: 20px; box-shadow: 0 8px 28px rgba(93,60,80,.18);" />
+      <p style="margin: 0; font-family: 'Gaegu', cursive, sans-serif; font-size: 22px; color: #4d3c45; letter-spacing: 0.01em;">
+        loading the booth…
+      </p>
+      <div style="width: 160px; height: 5px; background: #f3dde5; border-radius: 999px; overflow: hidden;">
+        <div id="boot-bar" style="height: 100%; background: #f2a8c0; border-radius: 999px;"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
