@@ -34,22 +34,26 @@ export function FilterScreen({ t, lang, brand, shots, selected, layoutId, skin, 
   const info = useMemo(() => buildFrameInfo(brand, lang), [brand, lang]);
   const sample = ordered[0];
 
-  const renderSlider = (key: AdjustKey, label: string) => (
-    <div className="flex flex-col gap-1">
-      <div className="flex justify-between font-sans text-[13.5px] font-semibold text-sub">
-        <span>{label}</span>
-        <span>{filter[key]}%</span>
+  const renderSlider = (key: AdjustKey, label: string) => {
+    const fill = `${filter[key] - 50}%`;
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between font-sans text-[13.5px] font-semibold text-sub">
+          <span>{label}</span>
+          <span>{filter[key]}%</span>
+        </div>
+        <input
+          type="range"
+          min="50"
+          max="150"
+          value={filter[key]}
+          onChange={(e) => setFilter({ ...filter, [key]: Number(e.target.value) })}
+          className="w-full"
+          style={{ '--fill': fill } as React.CSSProperties}
+        />
       </div>
-      <input
-        type="range"
-        min="50"
-        max="150"
-        value={filter[key]}
-        onChange={(e) => setFilter({ ...filter, [key]: Number(e.target.value) })}
-        className="w-full"
-      />
-    </div>
-  );
+    );
+  };
 
   return (
     <div data-screen-label="Filter" className="min-h-full flex flex-col">
