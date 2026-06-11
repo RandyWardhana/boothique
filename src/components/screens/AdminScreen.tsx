@@ -109,7 +109,7 @@ export function AdminScreen() {
         </p>
       )}
 
-      <form onSubmit={void handleSubmit} style={css.card}>
+      <form onSubmit={(e) => { void handleSubmit(e); }} style={css.card}>
         <div>
           <label style={css.label}>Admin Secret</label>
           <input
