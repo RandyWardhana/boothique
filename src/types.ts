@@ -152,6 +152,10 @@ export interface Skin {
   fonts?: { display: string; body: string };
   /** URL of a transparent PNG drawn over photos — used by custom uploaded frames. */
   overlay?: string;
+  /** Layout this skin is designed for — custom uploaded frames only. */
+  layoutId?: string;
+  /** Slot positions auto-detected from the overlay PNG's transparent regions. */
+  customSlots?: Slot[];
   decor: (layout: Layout, info: FrameInfo) => Decor;
 }
 

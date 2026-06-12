@@ -14,6 +14,7 @@ export function buildSkinFromConfig(config: RemoteSkinConfig): Skin {
     name: config.name,
     bg: '#f5f0eb',
     overlay: config.overlayUrl,
+    layoutId: config.layoutId,
     decor: (): Decor => ({ under: [], over: [] }),
   };
 }

@@ -1,4 +1,4 @@
-# Cloudflare Worker that hosts shared Boothique results for 72 hours.
+# Cloudflare Worker that serves shared Boothique results to users for 72 hours.
 #
 # Setup:
 #   1. npm install            (inside worker/)
@@ -6,9 +6,17 @@
 #   3. Set PUBLIC_BASE_URL below to this Worker's public URL (or a custom domain).
 #   4. npx wrangler deploy
 #
-# Storage GC: read access is cut off at exactly 72h (enforced in code). As a
-# backstop, add an R2 lifecycle rule on the bucket to delete objects after ~4
-# days (Dashboard → R2 → bucket → Settings → Object lifecycle rules).
+# Retention: USER read access is cut off at exactly 72h (enforced in code — the
+# /s/:id page, /api/meta/:id and the photo/video assets all return 410 once
+# expired). The R2 objects themselves are KEPT past 72h on purpose, so the admin
+# bulk-export (worker/src/archive.ts) can back them up later.
+#
+# Therefore do NOT add an R2 lifecycle rule that deletes share objects — it would
+# erase the very backups we're retaining. If you ever want eventual cleanup, set
+# its expiry well beyond your backup cadence, never ~4 days. Audit existing rules:
+#   npx wrangler r2 bucket lifecycle list boothique-shares
+# and remove an unwanted one with:
+#   npx wrangler r2 bucket lifecycle remove boothique-shares
 
 name = "boothique-share"
 main = "src/index.ts"

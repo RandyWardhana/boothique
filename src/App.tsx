@@ -99,7 +99,13 @@ export default function App() {
             t={t}
             shots={session.shots}
             layoutId={session.layoutId}
-            setLayoutId={session.setLayoutId}
+            setLayoutId={(id) => {
+              const currentSkin = getSkin(session.skinId);
+              if (currentSkin.layoutId && currentSkin.layoutId !== id) {
+                session.setSkinId('seo-blush');
+              }
+              session.setLayoutId(id);
+            }}
             selected={session.selected}
             setSelected={session.setSelected}
             onNext={() => session.setStep('edit')}

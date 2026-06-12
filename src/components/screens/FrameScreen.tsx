@@ -134,11 +134,11 @@ export function FrameScreen({
               );
             })}
 
-            {remoteSkins.length > 0 && (
+            {remoteSkins.filter((s) => s.layoutId === layoutId).length > 0 && (
               <div className="flex flex-col gap-2">
                 <div className="font-sans text-xs font-bold text-sub uppercase tracking-wide">Custom</div>
                 <div className="flex gap-3 flex-wrap">
-                  {remoteSkins.map((s) => {
+                  {remoteSkins.filter((s) => s.layoutId === layoutId).map((s) => {
                     const active = s.id === skin.id;
                     return (
                       <button

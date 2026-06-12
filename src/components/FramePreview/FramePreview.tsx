@@ -71,7 +71,7 @@ export function FramePreview({
         <FramePrimitive key={`u${i}`} prim={p} k={k} skin={skin} />
       ))}
 
-      {layout.slots.map((slot, i) => (
+      {(skin.customSlots ?? layout.slots).map((slot, i) => (
         <FrameSlot
           key={i}
           slot={slot}
@@ -94,7 +94,16 @@ export function FramePreview({
         <img
           src={skin.overlay}
           aria-hidden
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: layout.w * k,
+            height: layout.h * k,
+            objectFit: 'fill',
+            display: 'block',
+            pointerEvents: 'none',
+          }}
         />
       )}
 

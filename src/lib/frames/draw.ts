@@ -82,7 +82,8 @@ export function drawFrame(ctx: CanvasRenderingContext2D, opts: FrameOptions, get
   const beautyCss = beautifyCss(opts.beautify ?? opts.filter.beautify ?? 0);
   const photoRadius = skin.photo?.radius ?? 0;
 
-  L.slots.forEach((slot, i) => {
+  const slots = skin.customSlots ?? L.slots;
+  slots.forEach((slot, i) => {
     const media = getMedia(i);
     ctx.save();
     ctx.translate(slot.x + slot.w / 2, slot.y + slot.h / 2);

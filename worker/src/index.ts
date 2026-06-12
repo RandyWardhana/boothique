@@ -1,4 +1,5 @@
 import { renderExpiredPage, renderNotFoundPage, renderResultPage, type ShareMeta } from './pages';
+import { handleExportShares } from './archive';
 
 export interface Env {
   SHARES: R2Bucket;
@@ -18,13 +19,19 @@ interface SkinConfig {
   createdAt: number;
 }
 
-/** Shares live for exactly 72 hours; access is cut off after this. */
+/** USER read access ends exactly 72h after upload — every share route returns
+ *  410 past this. The R2 objects are NOT deleted here; they're retained so the
+ *  admin bulk-export (archive.ts) can back them up. See wrangler.toml retention. */
 const TTL_MS = 72 * 60 * 60 * 1000;
 const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 const MAX_SKIN_BYTES = 5 * 1024 * 1024;
 const ID_PATTERN = /^[a-z0-9]{12}$/;
 const VALID_LAYOUTS = ['strip', 'grid', 'polaroid', 'wide', 'collage'] as const;
+
+/** Obscure, unguessable path for the admin bulk-export of all shares. Not a
+ *  security boundary on its own — the ADMIN_SECRET is. See archive.ts. */
+const EXPORT_PATH = '/api/_sync/9c4f2a7e1b6d';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -43,7 +50,14 @@ export default {
       return handleAdminSkinUpload(request, env);
     }
 
+    if (request.method === 'DELETE') {
+      const deleteSkinMatch = pathname.match(/^\/api\/admin\/skin\/([^/]+)$/);
+      if (deleteSkinMatch) return handleAdminSkinDelete(deleteSkinMatch[1], request, env);
+    }
+
     if (request.method === 'GET') {
+      if (pathname === EXPORT_PATH) return handleExportShares(request, env);
+
       const metaMatch = pathname.match(/^\/api\/meta\/([^/]+)$/);
       if (metaMatch) return handleMeta(metaMatch[1], env);
 
@@ -157,6 +171,34 @@ async function handleAdminSkinUpload(request: Request, env: Env): Promise<Respon
   return json({ id, name, layoutId, overlayUrl }, 200, env);
 }
 
+/* ------------------------------ admin skin delete ------------------------------ */
+
+async function handleAdminSkinDelete(id: string, request: Request, env: Env): Promise<Response> {
+  const secret = request.headers.get('x-admin-secret');
+  if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
+    return json({ error: 'unauthorized' }, 401, env);
+  }
+
+  if (!ID_PATTERN.test(id)) return json({ error: 'invalid id' }, 400, env);
+
+  const manifestObj = await env.SHARES.get('skins/manifest.json');
+  const manifest: SkinConfig[] = manifestObj ? ((await manifestObj.json()) as SkinConfig[]) : [];
+  const filtered = manifest.filter((s) => s.id !== id);
+
+  if (filtered.length === manifest.length) {
+    return json({ error: 'skin not found' }, 404, env);
+  }
+
+  await Promise.all([
+    env.SHARES.put('skins/manifest.json', JSON.stringify(filtered), {
+      httpMetadata: { contentType: 'application/json' },
+    }),
+    env.SHARES.delete(`skins/${id}/overlay.png`),
+  ]);
+
+  return json({ ok: true }, 200, env);
+}
+
 /* ------------------------------ skins fetch ------------------------------ */
 
 async function handleGetSkins(env: Env): Promise<Response> {
@@ -251,7 +293,7 @@ function base(request: Request): string {
 function corsHeaders(env: Env): Record<string, string> {
   return {
     'access-control-allow-origin': env.ALLOWED_ORIGIN || '*',
-    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
     'access-control-allow-headers': 'content-type, x-admin-secret',
     'access-control-max-age': '86400',
   };
