@@ -46,6 +46,11 @@ export default {
       return handleUpload(request, env);
     }
 
+    if (request.method === 'POST') {
+      const attachMatch = pathname.match(/^\/api\/share\/([^/]+)\/video$/);
+      if (attachMatch) return handleAttachVideo(attachMatch[1], request, env);
+    }
+
     if (request.method === 'POST' && pathname === '/api/admin/skin') {
       return handleAdminSkinUpload(request, env);
     }
@@ -124,6 +129,49 @@ async function handleUpload(request: Request, env: Env): Promise<Response> {
   });
 
   return json({ id, url: `${base(request)}/s/${id}`, expiresAt }, 200, env);
+}
+
+/* ------------------------------ video attach ------------------------------ */
+
+/** Attach the animated MP4 to an existing share after the fact. The client
+ *  backs results up to R2 as soon as the still is rendered — the photo arrives
+ *  first and the (slow) video render follows, so the two land in separate
+ *  requests. Knowing the unguessable share id is the bearer credential, same
+ *  trust model as viewing; an existing video is never overwritten. */
+async function handleAttachVideo(id: string, request: Request, env: Env): Promise<Response> {
+  if (!ID_PATTERN.test(id)) return json({ error: 'not found' }, 404, env);
+
+  const metaObj = await env.SHARES.get(`shares/${id}/meta.json`);
+  if (!metaObj) return json({ error: 'not found' }, 404, env);
+
+  const meta = (await metaObj.json()) as ShareMeta;
+  if (Date.now() > meta.expiresAt) return json({ error: 'expired' }, 410, env);
+  if (meta.hasVideo) return json({ ok: true, alreadyAttached: true }, 200, env);
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ error: 'expected multipart/form-data' }, 400, env);
+  }
+
+  const video = asFile(form.get('video'));
+  if (!video || video.size === 0) return json({ error: 'video is required' }, 400, env);
+  if (video.size > MAX_VIDEO_BYTES) return json({ error: 'video too large' }, 413, env);
+
+  const customMetadata = { expiresAt: String(meta.expiresAt) };
+  await env.SHARES.put(`shares/${id}/video.mp4`, video.stream(), {
+    httpMetadata: { contentType: 'video/mp4' },
+    customMetadata,
+  });
+
+  const updated: ShareMeta = { ...meta, hasVideo: true };
+  await env.SHARES.put(`shares/${id}/meta.json`, JSON.stringify(updated), {
+    httpMetadata: { contentType: 'application/json' },
+    customMetadata,
+  });
+
+  return json({ ok: true }, 200, env);
 }
 
 /* ------------------------------ admin skin upload ------------------------------ */

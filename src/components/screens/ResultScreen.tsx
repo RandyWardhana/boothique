@@ -67,7 +67,9 @@ export function ResultScreen({ t, lang, brand, shots, selected, layoutId, skinId
     () => (hasClips ? renderVideo(opts).then((result) => result.blob) : Promise.resolve<Blob | null>(null)),
     [hasClips, opts],
   );
-  const shareLink = useShareLink({ brand, buildPhoto, buildVideo });
+  // Starts backing the result up to R2 as soon as the still is rendered — the
+  // share button then reuses that upload instead of starting a new one.
+  const shareLink = useShareLink({ brand, buildPhoto, buildVideo, hasVideo: hasClips, resultReady: Boolean(stillUrl) });
 
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);

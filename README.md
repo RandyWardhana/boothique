@@ -19,7 +19,7 @@ A browser-based photo booth — capture a roll of stills, pick a layout, tune fi
 - **Live filter preview** — apply and compare filters before exporting
 - **Frame skins** — three skin collections (core, girlie, occasion) with decorative overlays and sticker placement
 - **PNG + MP4 export** — full-res framed still via Canvas 2D; animated clip via WebCodecs + [mp4-muxer](https://github.com/Vanilagy/mp4-muxer) (MediaRecorder fallback for Safari)
-- **72-hour share links** — publish to a Cloudflare Worker + R2 bucket; the share page is served from your own domain (Vercel)
+- **72-hour share links** — results are backed up to a Cloudflare Worker + R2 bucket as soon as they're rendered (photo first, video when its render finishes); the share button reuses that upload, and the share page is served from your own domain (Vercel)
 - **PWA** — installable to home screen; works offline after first load
 - **Demo camera** — if webcam access is unavailable, an animated demo stream keeps the whole flow usable
 - **i18n** — English and Indonesian

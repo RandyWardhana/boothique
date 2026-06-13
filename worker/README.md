@@ -5,12 +5,13 @@ serves them through a branded result page.
 
 ## Endpoints
 
-| Method | Path                  | Purpose                                            |
-| ------ | --------------------- | -------------------------------------------------- |
-| `POST` | `/api/share`          | Upload `photo` (PNG, required) + `video` (MP4) + `brand` as `multipart/form-data`. Returns `{ id, url, expiresAt }`. |
-| `GET`  | `/s/:id`              | Branded result page. `410` once expired, `404` if unknown. |
-| `GET`  | `/s/:id/photo.png`    | The framed photo. `410` once expired.              |
-| `GET`  | `/s/:id/video.mp4`    | The animated strip, when present.                  |
+| Method | Path                    | Purpose                                            |
+| ------ | ----------------------- | -------------------------------------------------- |
+| `POST` | `/api/share`            | Upload `photo` (PNG, required) + `video` (MP4) + `brand` as `multipart/form-data`. Returns `{ id, url, expiresAt }`. |
+| `POST` | `/api/share/:id/video`  | Attach `video` (MP4) to an existing share. The app backs results up as soon as the still renders, so the photo arrives first and the slow video render follows. Never overwrites an existing video; `410` once expired. |
+| `GET`  | `/s/:id`                | Branded result page. `410` once expired, `404` if unknown. |
+| `GET`  | `/s/:id/photo.png`      | The framed photo. `410` once expired.              |
+| `GET`  | `/s/:id/video.mp4`      | The animated strip, when present.                  |
 
 ## Expiry model
 
