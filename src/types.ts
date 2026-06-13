@@ -120,11 +120,14 @@ export interface TextPrim {
 
 export type Prim = RectPrim | CirclePrim | TextPrim;
 
-/** Caption/date values a skin interpolates into its decorations. */
+/** Caption values a skin interpolates into its decorations. */
 export interface FrameInfo {
   brand: string;
+  /** Short date for the in-slot stamp. */
   date: string;
-  longDate: string;
+  /** Sub-caption line under the brand — the user's Instagram handle when set,
+   *  otherwise the long date. */
+  sub: string;
 }
 
 export interface Decor {

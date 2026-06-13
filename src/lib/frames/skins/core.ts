@@ -101,7 +101,7 @@ export const CORE_SKINS: Skin[] = [
         under,
         over: compact([
           captionText(L, info.brand, '#f0e4ce'),
-          subText(L, info.longDate, '#a8916f'),
+          subText(L, info.sub, '#a8916f'),
         ]),
       };
     },
@@ -118,7 +118,7 @@ export const CORE_SKINS: Skin[] = [
         borderRect(L, 14, '#6b5234', 3),
         borderRect(L, 24, '#6b5234', 1.5),
         captionText(L, info.brand, '#6b5234'),
-        subText(L, info.longDate, '#8d7048'),
+        subText(L, info.sub, '#8d7048'),
       ]),
     }),
   },
@@ -140,7 +140,7 @@ export const CORE_SKINS: Skin[] = [
         over: compact([
           borderRect(L, 16, '#ff7a45', 3, { glow: '#ff7a45' }),
           captionText(L, info.brand, '#ff7a45', 'display', { glow: '#ff7a45' }),
-          subText(L, info.longDate, '#d8b15e'),
+          subText(L, info.sub, '#d8b15e'),
         ]),
       };
     },
@@ -156,7 +156,7 @@ export const CORE_SKINS: Skin[] = [
       under: [],
       over: compact([
         captionText(L, info.brand, '#26262b'),
-        subText(L, info.longDate, '#9b9ba5'),
+        subText(L, info.sub, '#9b9ba5'),
       ]),
     }),
   },
@@ -176,7 +176,7 @@ export const CORE_SKINS: Skin[] = [
         under,
         over: compact([
           captionText(L, info.brand, capColor),
-          subText(L, info.longDate, barHeight ? '#ffd9cf' : '#9b9ba5'),
+          subText(L, info.sub, barHeight ? '#ffd9cf' : '#9b9ba5'),
         ]),
       };
     },
@@ -192,7 +192,7 @@ export const CORE_SKINS: Skin[] = [
       over: compact([
         borderRect(L, 16, '#5e8fb8', 3, { dash: [14, 12] }),
         captionText(L, info.brand, '#5e8fb8'),
-        subText(L, info.longDate, '#86a8c4'),
+        subText(L, info.sub, '#86a8c4'),
       ]),
     }),
   },
@@ -217,7 +217,7 @@ export const CORE_SKINS: Skin[] = [
       })),
       over: compact([
         captionText(L, info.brand, '#d34f7e'),
-        subText(L, info.longDate, '#c2789a'),
+        subText(L, info.sub, '#c2789a'),
       ]),
     }),
   },
@@ -238,7 +238,7 @@ export const CORE_SKINS: Skin[] = [
       })),
       over: compact([
         captionText(L, info.brand, '#7a5fae'),
-        subText(L, info.longDate, '#9a86c4'),
+        subText(L, info.sub, '#9a86c4'),
       ]),
     }),
   },
@@ -262,7 +262,7 @@ export const CORE_SKINS: Skin[] = [
       })),
       over: compact([
         captionText(L, info.brand, '#f4b8cd'),
-        subText(L, info.longDate, '#bb9cab'),
+        subText(L, info.sub, '#bb9cab'),
       ]),
     }),
   },

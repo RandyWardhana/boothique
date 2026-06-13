@@ -27,6 +27,7 @@ interface ResultScreenProps {
   skinId: string;
   filter: Filter;
   dateStamp: boolean;
+  igHandle: string;
   stickers: Sticker[];
   onBack: () => void;
   onRestart: () => void;
@@ -34,12 +35,12 @@ interface ResultScreenProps {
 
 const CARD_LABEL = 'font-sans text-[13px] font-bold text-sub uppercase tracking-wide';
 
-export function ResultScreen({ t, lang, brand, shots, selected, layoutId, skinId, filter, dateStamp, stickers, onBack, onRestart }: ResultScreenProps) {
+export function ResultScreen({ t, lang, brand, shots, selected, layoutId, skinId, filter, dateStamp, igHandle, stickers, onBack, onRestart }: ResultScreenProps) {
   const layout = LAYOUTS[layoutId];
   const skin = getSkin(skinId);
   const ordered = orderShots(shots, selected);
   const beautified = useBeautifiedShots(ordered, filter.beautify);
-  const info = useMemo(() => buildFrameInfo(brand, lang), [brand, lang]);
+  const info = useMemo(() => buildFrameInfo(brand, lang, igHandle), [brand, lang, igHandle]);
 
   const opts = useMemo<FrameOptions>(
     () => ({ layout, skin, shots: beautified, filter, beautify: filter.beautify, dateStamp, stickers, info }),

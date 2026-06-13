@@ -18,6 +18,7 @@ export function useBoothSession() {
   const [filter, setFilter] = useState<Filter>(DEFAULT_FILTER);
   const [skinId, setSkinId] = useState('seo-blush');
   const [dateStamp, setDateStamp] = useState(true);
+  const [igHandle, setIgHandle] = useState('');
   const [stickers, setStickers] = useState<Sticker[]>([]);
 
   /** Drop the session and release any recorded clip URLs. */
@@ -31,6 +32,7 @@ export function useBoothSession() {
     setSelected([]);
     setStickers([]);
     setFilter(DEFAULT_FILTER);
+    setIgHandle('');
     // Release this session's R2 folder so the next result uploads a fresh one.
     resetResultBackup();
     setStep('home');
@@ -51,6 +53,8 @@ export function useBoothSession() {
     setSkinId,
     dateStamp,
     setDateStamp,
+    igHandle,
+    setIgHandle,
     stickers,
     setStickers,
     restart,

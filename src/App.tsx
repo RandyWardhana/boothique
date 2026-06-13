@@ -142,6 +142,8 @@ export default function App() {
             filter={session.filter}
             dateStamp={session.dateStamp}
             setDateStamp={session.setDateStamp}
+            igHandle={session.igHandle}
+            setIgHandle={session.setIgHandle}
             stickers={session.stickers}
             setStickers={session.setStickers}
             remoteSkins={remoteSkins}
@@ -161,6 +163,7 @@ export default function App() {
             skinId={session.skinId}
             filter={session.filter}
             dateStamp={session.dateStamp}
+            igHandle={session.igHandle}
             stickers={session.stickers}
             onBack={() => session.setStep('frame')}
             onRestart={session.restart}

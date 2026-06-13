@@ -126,7 +126,7 @@ export const OCCASION_SKINS: Skin[] = [
         borderRect(L, 16, '#46549a', 4),
         borderRect(L, 28, '#dcb45e', 2),
         captionText(L, info.brand, '#46549a'),
-        subText(L, info.longDate, '#9a8a5e'),
+        subText(L, info.sub, '#9a8a5e'),
       ]),
     }),
   },
@@ -142,7 +142,7 @@ export const OCCASION_SKINS: Skin[] = [
         .concat(confetti(L, ['#f2a8c0', '#a7c8ec', '#f6d98a', '#c9b6ec'], 22, 43))
         .concat(scatterWords(L, ['HBD!!', '♡', 'MAKE A WISH', 'YAY!'], ['#e07a9d', '#7d9fd1', '#d9a93f'], 61, Math.max(28, L.w * 0.05)))
         .concat(candles(L, ['#f2a8c0', '#a7c8ec', '#b8e3c2'])),
-      over: compact([captionText(L, info.brand, '#e07a9d'), subText(L, info.longDate, '#c98aa6')]),
+      over: compact([captionText(L, info.brand, '#e07a9d'), subText(L, info.sub, '#c98aa6')]),
     }),
   },
   {
@@ -159,7 +159,7 @@ export const OCCASION_SKINS: Skin[] = [
       over: compact([
         borderRect(L, 18, '#a7c8ec', 3, { dash: [18, 14] }),
         captionText(L, info.brand, '#5f86c4'),
-        subText(L, info.longDate, '#93a8cc'),
+        subText(L, info.sub, '#93a8cc'),
       ]),
     }),
   },
@@ -172,7 +172,7 @@ export const OCCASION_SKINS: Skin[] = [
     photo: { radius: 8 },
     decor: (L, info) => ({
       under: confetti(L, ['#f2a8c0', '#a7c8ec', '#f6d98a', '#b8e3c2', '#c9b6ec', '#f6b69a'], 44, 91),
-      over: tapeCorners(L, '#f6d98a').concat(compact([captionText(L, info.brand, '#e07a9d'), subText(L, info.longDate, '#b9a48a')])),
+      over: tapeCorners(L, '#f6d98a').concat(compact([captionText(L, info.brand, '#e07a9d'), subText(L, info.sub, '#b9a48a')])),
     }),
   },
   {
@@ -205,7 +205,7 @@ export const OCCASION_SKINS: Skin[] = [
         over: compact([
           borderRect(L, 16, '#b59ce0', 3, { glow: '#b59ce0' }),
           captionText(L, info.brand, '#f4b8cd', 'display', { glow: '#f4b8cd' }),
-          subText(L, info.longDate, '#9c8bb5'),
+          subText(L, info.sub, '#9c8bb5'),
         ]),
       };
     },

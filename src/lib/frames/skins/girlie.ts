@@ -119,7 +119,7 @@ export const GIRLIE_SKINS: Skin[] = [
           align: 'center',
         })),
       ),
-      over: compact([borderRect(L, 44, '#f3d7e0', 2), captionText(L, info.brand, '#d34f7e'), subText(L, info.longDate, '#c2789a')]),
+      over: compact([borderRect(L, 44, '#f3d7e0', 2), captionText(L, info.brand, '#d34f7e'), subText(L, info.sub, '#c2789a')]),
     }),
   },
   {
@@ -130,7 +130,7 @@ export const GIRLIE_SKINS: Skin[] = [
     photo: { radius: 18, mat: '#ffffff' },
     decor: (L, info) => ({
       under: cherries(L),
-      over: compact([captionText(L, info.brand, '#c2255c'), subText(L, info.longDate, '#d66a92')]),
+      over: compact([captionText(L, info.brand, '#c2255c'), subText(L, info.sub, '#d66a92')]),
     }),
   },
   {
@@ -141,7 +141,7 @@ export const GIRLIE_SKINS: Skin[] = [
     photo: { radius: 14, mat: '#ffffff' },
     decor: (L, info) => ({
       under: gingham(L, '#f7a8c0'),
-      over: compact([captionText(L, info.brand, '#d6336c'), subText(L, info.longDate, '#c2789a')]),
+      over: compact([captionText(L, info.brand, '#d6336c'), subText(L, info.sub, '#c2789a')]),
     }),
   },
   {
@@ -152,7 +152,7 @@ export const GIRLIE_SKINS: Skin[] = [
     photo: { radius: 18, mat: '#ffffff' },
     decor: (L, info) => ({
       under: checker(L, '#f9cfe0', '#eadcf6'),
-      over: compact([captionText(L, info.brand, '#a05fae'), subText(L, info.longDate, '#b88aa6')]),
+      over: compact([captionText(L, info.brand, '#a05fae'), subText(L, info.sub, '#b88aa6')]),
     }),
   },
   {
@@ -163,7 +163,7 @@ export const GIRLIE_SKINS: Skin[] = [
     photo: { radius: 22, mat: '#ffffff' },
     decor: (L, info) => ({
       under: clouds(L).concat(sparkles(L, ['#a48ad4', '#7fa9cc'], 29)),
-      over: compact([captionText(L, info.brand, '#6f86c9'), subText(L, info.longDate, '#93a3d1')]),
+      over: compact([captionText(L, info.brand, '#6f86c9'), subText(L, info.sub, '#93a3d1')]),
     }),
   },
   {
@@ -176,7 +176,7 @@ export const GIRLIE_SKINS: Skin[] = [
       under: [],
       over: compact([borderRect(L, 24, '#f0e6d6', 2)])
         .concat(pearls(L, 24))
-        .concat(compact([captionText(L, info.brand, '#b08d57'), subText(L, info.longDate, '#c4ab86')])),
+        .concat(compact([captionText(L, info.brand, '#b08d57'), subText(L, info.sub, '#c4ab86')])),
     }),
   },
   {
@@ -206,7 +206,7 @@ export const GIRLIE_SKINS: Skin[] = [
         borderRect(L, 16, '#e3b3c0', 2.5),
         borderRect(L, 26, '#e3b3c0', 1),
         captionText(L, info.brand, '#c0758c'),
-        subText(L, info.longDate, '#cf9aa9'),
+        subText(L, info.sub, '#cf9aa9'),
       ]),
     }),
   },

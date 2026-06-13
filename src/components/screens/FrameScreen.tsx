@@ -26,6 +26,8 @@ interface FrameScreenProps {
   filter: Filter;
   dateStamp: boolean;
   setDateStamp: (value: boolean) => void;
+  igHandle: string;
+  setIgHandle: (value: string) => void;
   stickers: Sticker[];
   setStickers: Dispatch<SetStateAction<Sticker[]>>;
   remoteSkins: Skin[];
@@ -45,6 +47,8 @@ export function FrameScreen({
   filter,
   dateStamp,
   setDateStamp,
+  igHandle,
+  setIgHandle,
   stickers,
   setStickers,
   remoteSkins,
@@ -56,7 +60,7 @@ export function FrameScreen({
   const skin = getSkin(skinId);
   const ordered = orderShots(shots, selected);
   const beautified = useBeautifiedShots(ordered, filter.beautify);
-  const info = useMemo(() => buildFrameInfo(brand, lang), [brand, lang]);
+  const info = useMemo(() => buildFrameInfo(brand, lang, igHandle), [brand, lang, igHandle]);
   const thumbW = previewWidth(layout, 100);
 
   const addSticker = (base: StickerTemplate) => {
@@ -171,6 +175,24 @@ export function FrameScreen({
 
           <Card className="flex flex-col gap-3">
             <ToggleRow label={t('dateStamp')} value={dateStamp} onChange={setDateStamp} />
+
+            <div>
+              <div className="font-sans text-xs font-bold text-sub uppercase tracking-wide mb-2">{t('igHandle')}</div>
+              <div className="flex items-center w-full px-3 py-2.5 rounded-app border border-line bg-base focus-within:border-accent">
+                <span className="font-sans text-sub text-[15px] select-none">@</span>
+                <input
+                  value={igHandle.replace(/^@+/, '')}
+                  onChange={(e) => setIgHandle(e.target.value.replace(/^@+/, ''))}
+                  placeholder={t('igHandlePlaceholder')}
+                  maxLength={30}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  className="flex-1 min-w-0 bg-transparent border-0 outline-none font-sans text-ink text-[15px] ml-0.5"
+                />
+              </div>
+            </div>
+
             <div>
               <div className="font-sans text-xs font-bold text-sub uppercase tracking-wide mb-2">{t('stickers')}</div>
               <div className="flex gap-2 flex-wrap">
