@@ -56,7 +56,7 @@ export function SharePanel({ t, brand, share }: SharePanelProps) {
             readOnly
             value={share.link.url}
             onFocus={(e) => e.currentTarget.select()}
-            className="w-full px-3 py-2.5 rounded-app border border-line bg-base text-ink font-mono text-[13px]"
+            className="w-full px-3 py-2.5 rounded-app border border-line bg-base text-center text-ink font-mono text-[13px]"
           />
 
           <div className="flex gap-2.5">

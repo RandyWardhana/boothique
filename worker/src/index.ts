@@ -51,6 +51,11 @@ export default {
       if (attachMatch) return handleAttachVideo(attachMatch[1], request, env);
     }
 
+    if (request.method === 'PUT') {
+      const replaceMatch = pathname.match(/^\/api\/share\/([^/]+)$/);
+      if (replaceMatch) return handleReplaceResult(replaceMatch[1], request, env);
+    }
+
     if (request.method === 'POST' && pathname === '/api/admin/skin') {
       return handleAdminSkinUpload(request, env);
     }
@@ -108,7 +113,9 @@ async function handleUpload(request: Request, env: Env): Promise<Response> {
   const id = generateId();
   const now = Date.now();
   const expiresAt = now + TTL_MS;
-  const customMetadata = { expiresAt: String(expiresAt) };
+  // Stamp the creation time onto every object so it's visible per-object in R2
+  // and survives a later replace (which resets R2's own `uploaded` timestamp).
+  const customMetadata = shareMetadata(now, expiresAt);
 
   await env.SHARES.put(`shares/${id}/photo.png`, photo.stream(), {
     httpMetadata: { contentType: 'image/png' },
@@ -122,13 +129,75 @@ async function handleUpload(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  const meta: ShareMeta = { brand, createdAt: now, expiresAt, hasVideo };
+  const meta: ShareMeta = { brand, createdAt: now, createdAtISO: new Date(now).toISOString(), expiresAt, hasVideo };
   await env.SHARES.put(`shares/${id}/meta.json`, JSON.stringify(meta), {
     httpMetadata: { contentType: 'application/json' },
     customMetadata,
   });
 
   return json({ id, url: `${base(request)}/s/${id}`, expiresAt }, 200, env);
+}
+
+/* ------------------------------ result replace ------------------------------ */
+
+/** Replace an existing share's photo (and reset its video) in place, keeping the
+ *  same id and 72h window. The client backs the result up to R2 the moment it's
+ *  rendered; if the user then steps back, adjusts the result and returns, the
+ *  new render REPLACES the old one in this same folder instead of spawning a
+ *  second share. So a session only ever produces one folder. Bearer model:
+ *  knowing the unguessable id grants write, same trust as the video attach. */
+async function handleReplaceResult(id: string, request: Request, env: Env): Promise<Response> {
+  if (!ID_PATTERN.test(id)) return json({ error: 'not found' }, 404, env);
+
+  const metaObj = await env.SHARES.get(`shares/${id}/meta.json`);
+  if (!metaObj) return json({ error: 'not found' }, 404, env);
+
+  const meta = (await metaObj.json()) as ShareMeta;
+  if (Date.now() > meta.expiresAt) return json({ error: 'expired' }, 410, env);
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ error: 'expected multipart/form-data' }, 400, env);
+  }
+
+  const photo = asFile(form.get('photo'));
+  if (!photo) return json({ error: 'photo is required' }, 400, env);
+  if (photo.size === 0 || photo.size > MAX_PHOTO_BYTES) return json({ error: 'photo too large' }, 413, env);
+
+  const video = asFile(form.get('video'));
+  const hasVideo = video !== null && video.size > 0;
+  if (video && video.size > MAX_VIDEO_BYTES) return json({ error: 'video too large' }, 413, env);
+
+  // Keep the original creation time and expiry — replacing the contents doesn't
+  // restart the clock, so the folder's timestamp stays the session's start.
+  const customMetadata = shareMetadata(meta.createdAt, meta.expiresAt);
+
+  await env.SHARES.put(`shares/${id}/photo.png`, photo.stream(), {
+    httpMetadata: { contentType: 'image/png' },
+    customMetadata,
+  });
+
+  if (hasVideo && video) {
+    await env.SHARES.put(`shares/${id}/video.mp4`, video.stream(), {
+      httpMetadata: { contentType: 'video/mp4' },
+      customMetadata,
+    });
+  } else {
+    // The new result's MP4 hasn't rendered yet — drop the stale clip so the
+    // share never serves a video that no longer matches the photo. The client
+    // re-attaches the fresh MP4 via /video once its render finishes.
+    await env.SHARES.delete(`shares/${id}/video.mp4`);
+  }
+
+  const updated: ShareMeta = { ...meta, hasVideo };
+  await env.SHARES.put(`shares/${id}/meta.json`, JSON.stringify(updated), {
+    httpMetadata: { contentType: 'application/json' },
+    customMetadata,
+  });
+
+  return json({ id, url: `${base(request)}/s/${id}`, expiresAt: meta.expiresAt }, 200, env);
 }
 
 /* ------------------------------ video attach ------------------------------ */
@@ -159,7 +228,7 @@ async function handleAttachVideo(id: string, request: Request, env: Env): Promis
   if (!video || video.size === 0) return json({ error: 'video is required' }, 400, env);
   if (video.size > MAX_VIDEO_BYTES) return json({ error: 'video too large' }, 413, env);
 
-  const customMetadata = { expiresAt: String(meta.expiresAt) };
+  const customMetadata = shareMetadata(meta.createdAt, meta.expiresAt);
   await env.SHARES.put(`shares/${id}/video.mp4`, video.stream(), {
     httpMetadata: { contentType: 'video/mp4' },
     customMetadata,
@@ -331,6 +400,17 @@ function generateId(): string {
   return crypto.randomUUID().replace(/-/g, '').slice(0, 12);
 }
 
+/** Custom metadata stamped on every share object so the creation time travels
+ *  with the file — visible per-object in the R2 dashboard and stable across a
+ *  replace, which would otherwise reset R2's automatic `uploaded` timestamp. */
+function shareMetadata(createdAt: number, expiresAt: number): Record<string, string> {
+  return {
+    createdAt: String(createdAt),
+    createdAtISO: new Date(createdAt).toISOString(),
+    expiresAt: String(expiresAt),
+  };
+}
+
 /** Derive the public origin from the incoming request so it's always correct,
  *  regardless of what PUBLIC_BASE_URL is set to in wrangler.toml. */
 function base(request: Request): string {
@@ -341,7 +421,7 @@ function base(request: Request): string {
 function corsHeaders(env: Env): Record<string, string> {
   return {
     'access-control-allow-origin': env.ALLOWED_ORIGIN || '*',
-    'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'access-control-allow-headers': 'content-type, x-admin-secret',
     'access-control-max-age': '86400',
   };

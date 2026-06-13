@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useDismissBoot } from '@/hooks/useDismissBoot';
+import { useStandaloneTheme } from '@/hooks/useStandaloneTheme';
 
 const API_BASE = import.meta.env.VITE_SHARE_API_BASE?.replace(/\/$/, '') ?? '';
 
@@ -45,28 +46,7 @@ async function downloadFile(url: string, filename: string) {
 export function SharePage({ id }: { id: string }) {
   const [state, setState] = useState<ShareState>({ status: 'loading' });
   useDismissBoot();
-
-  // Apply default blossom theme so Tailwind tokens resolve on this standalone page.
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    const vars: Record<string, string> = {
-      '--bg': '#fdf4ee',
-      '--surface': '#fffaf6',
-      '--text': '#5b4a78',
-      '--sub': '#a692bd',
-      '--border': '#f3dbe4',
-      '--accent': '#ef9fbd',
-      '--accent2': '#b79fe0',
-      '--on-accent': '#5a3550',
-      '--frame': '#f6d6df',
-      '--radius': '18px',
-      '--font-display': "'Gaegu', cursive",
-      '--font-body': "'Gaegu', cursive",
-      '--btn-shadow': 'none',
-    };
-    for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
-    document.body.style.background = '#fdf4ee';
-  }, []);
+  useStandaloneTheme();
 
   useEffect(() => {
     if (!API_BASE) { setState({ status: 'error' }); return; }

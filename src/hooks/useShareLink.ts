@@ -28,8 +28,9 @@ export function useShareLink({ brand, buildPhoto, buildVideo, hasVideo, resultRe
   const [status, setStatus] = useState<ShareStatus>('idle');
   const [link, setLink] = useState<ShareLink | null>(null);
 
-  // Silent backup — fire-and-forget, deduped by content hash inside
-  // ensureResultBackup so re-renders and screen revisits don't re-upload.
+  // Silent backup — fire-and-forget. ensureResultBackup keeps one R2 folder per
+  // session: an unchanged revisit re-uses it, and a revisit after the user
+  // adjusts the result replaces the photo/video in place instead of duplicating.
   useEffect(() => {
     if (!resultReady || !isShareLinkEnabled()) return;
     let cancelled = false;

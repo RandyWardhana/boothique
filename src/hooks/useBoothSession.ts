@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { Filter, LayoutId, Shot, Sticker } from '@/types';
 import { DEFAULT_FILTER } from '@/lib/filters';
+import { resetResultBackup } from '@/lib/shareLink';
 
 export type Step = 'home' | 'capture' | 'select' | 'edit' | 'frame' | 'result';
 
@@ -30,6 +31,8 @@ export function useBoothSession() {
     setSelected([]);
     setStickers([]);
     setFilter(DEFAULT_FILTER);
+    // Release this session's R2 folder so the next result uploads a fresh one.
+    resetResultBackup();
     setStep('home');
   }, []);
 

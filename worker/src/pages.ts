@@ -3,6 +3,9 @@
 export interface ShareMeta {
   brand: string;
   createdAt: number;
+  /** Same instant as `createdAt`, ISO 8601 — human-readable when browsing R2.
+   *  Optional so shares written before this field still parse. */
+  createdAtISO?: string;
   expiresAt: number;
   hasVideo: boolean;
 }
